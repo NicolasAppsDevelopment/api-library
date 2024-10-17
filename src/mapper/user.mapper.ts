@@ -7,6 +7,7 @@ export class UserMapper {
       id: user.id,
       username: user.username,
       password: user.password,
+      role: user.role
     };
   }
 

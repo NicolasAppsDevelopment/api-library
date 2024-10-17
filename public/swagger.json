@@ -7,6 +7,59 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"UserOutputDTO": {
+				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
+					"username": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"username",
+					"password",
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserInputDTO": {
+				"properties": {
+					"username": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"username",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserInputPatchDTO": {
+				"properties": {
+					"username": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
 			"AuthorOutputDTO": {
 				"properties": {
 					"id": {
@@ -207,9 +260,35 @@
 				},
 				"type": "object",
 				"additionalProperties": false
+			},
+			"AuthenticationInputDTO": {
+				"properties": {
+					"grant_type": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"grant_type",
+					"username",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"jwt": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "Authorization"
+			}
+		}
 	},
 	"info": {
 		"title": "express-typescript",
@@ -220,6 +299,186 @@
 		"contact": {}
 	},
 	"paths": {
+		"/users": {
+			"get": {
+				"operationId": "GetAllUsers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/UserOutputDTO"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"read:user"
+						]
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserOutputDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"create:user"
+						]
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserInputDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{id}": {
+			"get": {
+				"operationId": "GetUserById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserOutputDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"read:user"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "DeleteUser",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"delete:user"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserOutputDTO"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"jwt": [
+							"update:user"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserInputPatchDTO"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/book-collections": {
 			"get": {
 				"operationId": "GetAllBooksCollection",
@@ -241,7 +500,13 @@
 				"tags": [
 					"BookCollections"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:collection"
+						]
+					}
+				],
 				"parameters": []
 			},
 			"post": {
@@ -261,7 +526,13 @@
 				"tags": [
 					"BookCollections"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"create:collection"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -293,7 +564,13 @@
 				"tags": [
 					"BookCollections"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:collection"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -323,7 +600,13 @@
 				"tags": [
 					"BookCollections"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"update:collection"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -356,7 +639,13 @@
 				"tags": [
 					"BookCollections"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"delete:collection"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -391,7 +680,13 @@
 				"tags": [
 					"Books"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:book"
+						]
+					}
+				],
 				"parameters": []
 			},
 			"post": {
@@ -411,7 +706,13 @@
 				"tags": [
 					"Books"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"create:book"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -443,7 +744,13 @@
 				"tags": [
 					"Books"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:book"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -473,7 +780,13 @@
 				"tags": [
 					"Books"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"update:book"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -506,7 +819,13 @@
 				"tags": [
 					"Books"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"delete:book"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -541,7 +860,14 @@
 				"tags": [
 					"Books"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:book",
+							"read:collection"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -576,7 +902,13 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:author"
+						]
+					}
+				],
 				"parameters": []
 			},
 			"post": {
@@ -596,7 +928,13 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"create:author"
+						]
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -628,7 +966,13 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:author"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -651,7 +995,13 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"delete:author"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -681,7 +1031,13 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"update:author"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -726,7 +1082,14 @@
 				"tags": [
 					"Authors"
 				],
-				"security": [],
+				"security": [
+					{
+						"jwt": [
+							"read:author",
+							"read:book"
+						]
+					}
+				],
 				"parameters": [
 					{
 						"in": "path",
@@ -738,6 +1101,43 @@
 						}
 					}
 				]
+			}
+		},
+		"/auth": {
+			"post": {
+				"operationId": "Authenticate",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"token": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"token"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AuthenticationInputDTO"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

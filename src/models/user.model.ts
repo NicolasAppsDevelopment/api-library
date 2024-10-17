@@ -5,6 +5,7 @@ export interface UserAttributes {
   id?: number;
   username: string;
   password: string;
+  role: string;
 }
 
 export class User
@@ -14,6 +15,7 @@ export class User
   public id!: number;
   public username!: string;
   public password!: string;
+  public role!: string;
 }
 
 User.init(
@@ -30,6 +32,11 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "user",
     },
   },
   {
